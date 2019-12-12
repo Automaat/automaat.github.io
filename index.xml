@@ -1,39 +1,13 @@
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-    <channel>
-        <title>Marcin Skalski&#39;s Blog on Marcin Skalski&#39;s Blog</title>
-        <link>https://mskalski.dev/</link>
-        <description>Recent content in Marcin Skalski&#39;s Blog on Marcin Skalski&#39;s Blog</description>
-        <generator>Hugo -- gohugo.io</generator>
-        
-            <language>en</language>
-        
-        
-        
-            <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
-        
-        
-            <lastBuildDate>Wed, 11 Dec 2019 11:04:49 +0800</lastBuildDate>
-        
-        <atom:link href="https://mskalski.dev/" rel="self" type="application/rss+xml" />
-        
-            <item>
-                <title></title>
-                <link>https://mskalski.dev/about/</link>
-                <pubDate>Wed, 11 Dec 2019 11:04:49 +0800</pubDate>
-                
-                <guid>https://mskalski.dev/about/</guid>
-                <description>&lt;p&gt;Hi, my name is Marcin and I am currently working in Allegro a&lt;/p&gt;
-</description>
-            </item>
-        
-            <item>
-                <title>Posts</title>
-                <link>https://mskalski.dev/posts/</link>
-                <pubDate>Tue, 10 Dec 2019 18:24:30 +0100</pubDate>
-                
-                <guid>https://mskalski.dev/posts/</guid>
-                <description></description>
-            </item>
-        
-    </channel>
-</rss>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Marcin Skalski's Blog on Marcin Skalski's Blog</title><link>https://mskalski.dev/</link><description>Recent content in Marcin Skalski's Blog on Marcin Skalski's Blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright><lastBuildDate>Wed, 11 Dec 2019 11:04:49 +0800</lastBuildDate><atom:link href="https://mskalski.dev/" rel="self" type="application/rss+xml"/><item><title/><link>https://mskalski.dev/about/</link><pubDate>Wed, 11 Dec 2019 11:04:49 +0800</pubDate><guid>https://mskalski.dev/about/</guid><description>&lt;p>Hi, my name is Marcin and since I remember I loved to know how things work. When I was young I
+disassembled a lot of toys and one old boombox. Unfortunately, I was not able to assemble all
+of them again. I high school I fell for physics and astronomy I could finally deepen the secrets of
+the universe and just before going to university I discovered how much fun programming so I decided to
+study Computer Science.&lt;/p>
+&lt;p>Since then a lot of has changed I have learned a lot, I started working, I met a lot of amazing people
+that helped me extend my knowledge. I got a dog (he is really cute btw 😉). Some time ago something has changed I don't
+know what yet but I recall my love for exploring and deeply understanding things, so I started to read JDK code, dig into
+JVM internals, try to understand how Linux kernel work and how it affects the performance of applications. Now I want to
+share this knowledge and my discoveries with others so I started this blog.&lt;/p>
+&lt;p>I am deeply focused on JVM internals and performance engineering right now but do a lot more in my free time. I really
+like photography, especially animal and landscape photography and my dream is to one day direct my own short movie.&lt;/p>
+&lt;p>Feel free to contact me on social media, any time you want.&lt;/p></description></item><item><title>Posts</title><link>https://mskalski.dev/posts/</link><pubDate>Tue, 10 Dec 2019 18:24:30 +0100</pubDate><guid>https://mskalski.dev/posts/</guid><description/></item></channel></rss>
