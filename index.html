@@ -1,6 +1,390 @@
-<!doctype html><html lang=en><head><meta name=generator content="Hugo 0.60.1"><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>Marcin Skalski's Blog</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content="noodp"><meta name=Description content="Marcin Skalsi's personal blog about JVM internals, performance and other Java related stuff"><link rel=canonical href=https://mskalski.dev/><link rel="shortcut icon" type=image/x-icon href=/favicon.ico><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/site.webmanifest><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><meta name=msapplication-TileColor content="#da532c"><meta name=theme-color content="#ffffff"><link rel=alternate href=/index.xml type=application/rss+xml title="Marcin Skalski's Blog"><link rel=feed href=/index.xml type=application/rss+xml title="Marcin Skalski's Blog"><meta name=twitter:card content="summary"><meta name=twitter:title content="Marcin Skalski's Blog"><meta name=twitter:description content="Marcin Skalsi's personal blog about JVM internals, performance and other Java related stuff"><script type=application/ld+json>{"@context":"http://schema.org","@type":"WebSite","url":"https:\/\/mskalski.dev\/","author":{"@type":"Person","name":"Marcin Skalski"},"description":"Marcin Skalsi\x27s personal blog about JVM internals, performance and other Java related stuff","image":"https:\/\/mskalski.dev\/cover.png","thumbnailUrl":"https:\/\/mskalski.dev\/logo.jpg","license":"This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","name":"Marcin Skalski\x27s Blog"}</script><link rel=stylesheet href=/css/style.min.css><link rel=stylesheet href=/css/lib/fontawesome-free/all.min.min.css><link rel=stylesheet href=/css/lib/animate/animate.min.min.css></head><body><script>window.localStorage.setItem('theme','dark');window.isDark=(window.localStorage&&window.localStorage.getItem('theme'))==='dark';window.isDark&&document.body.classList.add('dark-theme');</script><div class=wrapper><nav class=navbar><div class=navbar-container><div class="navbar-header animated bounceIn"><a href=https://mskalski.dev/>Marcin Skalski's Blog</a></div><div class=navbar-menu><a class=menu-item href=https://mskalski.dev/posts>Posts</a>
-<a class=menu-item href=https://mskalski.dev/about>About</a>
-<a href=javascript:void(0); class=theme-switch><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a></div></div></nav><nav class=navbar-mobile><div class=navbar-container><div class=navbar-header><div class="navbar-header-title animated bounceIn"><a href=https://mskalski.dev/>Marcin Skalski's Blog</a></div><div class=menu-toggle id=menu-toggle><span></span><span></span><span></span></div></div><div class=navbar-menu id=mobile-menu><a class=menu-item href=https://mskalski.dev/posts>Posts</a>
-<a class=menu-item href=https://mskalski.dev/about>About</a>
-<a href=javascript:void(0); class=theme-switch><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a></div></div></nav><main class=main><div class=container><div class=post-warp><div class=home-intro><div class=home-avatar><a href=/posts><img src=/images/avatar.jpg alt=avatar></a></div><h2 class=home-description><div id=rtp-88c6af0f128a77542192effd813b46b8 hidden>Can it run faster?</div><div id=tp-88c6af0f128a77542192effd813b46b8 class=typeit></div></h2><div class=home-social-links><a href=https://github.com/Automaat rel="me noopener noreffer" target=_blank><i class="fab fa-github-alt fa-fw"></i></a><a href=https://linkedin.com/in/skalskimarcin rel="me noopener noreffer" target=_blank><i class="fab fa-linkedin fa-fw"></i></a><a href=https://twitter.com/mskalski_ rel="me noopener noreffer" target=_blank><i class="fab fa-twitter fa-fw"></i></a><a href=https://www.instagram.com/marcinskalski_photo/ rel="me noopener noreffer" target=_blank><i class="fab fa-instagram fa-fw"></i></a><a href=mailto:skalskimarcin33%28at%29gmail.com rel="me noopener noreffer"><i class="far fa-envelope" target="_blank fa-fw"></i></a></div></div><article class=post itemscope itemtype=http://schema.org/Article><h1 class="post-title post-list-title" itemprop="name headline"><a href=https://mskalski.dev/2019/12/timeouts/>Why my HTTP request did not timed out? Quick tour inside JDK and OkHttpClient for better understanding of timeouts</a></h1><div class=post-meta><a class=author href=https://mskalski.dev/ rel=author><i class="fas fa-user-circle fa-fw"></i>Marcin Skalski&nbsp;</a>
-published on&nbsp;<time datetime=2019-12-13>2019-12-13</time>&nbsp;</div><div class=post-content>So you have JVM based service (A) that is communicating with another service (B) using some kind of HTTP client. You know what you are doing so you gathered metrics statistics from your dependency. Especially it’s response times. Let’s assume that p99 of its response times form service B are 200ms. Also, this service is fairly close to you for example in the same data center. You adjusted your timeouts accordingly, for example, you’ve set connection timeout to 50ms and socket timeout to 250ms.</div><div class=post-footer><a href=https://mskalski.dev/2019/12/timeouts/>Read More</a></div></article></div></div></main><footer class=footer><div class=copyright><div class=copyright-line>Powered by <a href=https://gohugo.io/ target=_blank rel="external nofollow noopener noreffer">Hugo</a>&nbsp;|&nbsp;Theme - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="external nofollow noopener noreffer">LoveIt<i class="far fa-heart fa-fw"></i></a></div><div class=copyright-line><i class="far fa-copyright fa-fw"></i><span itemprop=copyrightYear>2019</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=https://mskalski.dev/>Marcin Skalski</a></span><span class=license>&nbsp;|&nbsp;<a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div></div></footer><script src=/js/lib/jquery/jquery.slim.min.min.js></script><script src=/js/lib/lazysizes/lazysizes.min.min.js></script><script src=/js/lib/smooth-scroll/smooth-scroll.polyfills.min.min.js></script><script>window.scroll=new SmoothScroll('[data-scroll]',{speed:300,speedAsDuration:true});</script><script src=/js/lib/typeit/typeit.modern.min.min.js></script><script>window.typeitArr=[["tp-88c6af0f128a77542192effd813b46b8"]];</script><script src=/js/blog.min.js></script><script type=application/javascript>var doNotTrack=false;if(!doNotTrack){window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-154393799-1','auto');ga('set','anonymizeIp',true);ga('send','pageview');}</script><script async src=https://www.google-analytics.com/analytics.js></script></div><a href=# class=dynamic-to-top id=dynamic-to-top data-scroll><span>&nbsp;</span></a></body></html>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+	<meta name="generator" content="Hugo 0.60.1" />
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Marcin Skalski&#39;s Blog</title><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noodp" />
+<meta name="Description" content="Marcin Skalsi&#39;s personal blog about JVM internals, performance and other Java related stuff">
+<link rel="canonical" href="https://mskalski.dev/" />
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+<link rel="alternate" href="/index.xml" type="application/rss+xml" title="Marcin Skalski&#39;s Blog">
+    <link rel="feed" href="/index.xml" type="application/rss+xml" title="Marcin Skalski&#39;s Blog">
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Marcin Skalski&#39;s Blog"/>
+<meta name="twitter:description" content="Marcin Skalsi&#39;s personal blog about JVM internals, performance and other Java related stuff"/>
+<script type="application/ld+json">
+    {
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "url": "https:\/\/mskalski.dev\/",
+    
+        "author": {
+            "@type": "Person",
+            "name": "Marcin Skalski"
+        },
+    
+    
+        "description": "Marcin Skalsi\x27s personal blog about JVM internals, performance and other Java related stuff",
+    
+    
+        "image": "https:\/\/mskalski.dev\/cover.png",
+    
+    
+        "thumbnailUrl": "https:\/\/mskalski.dev\/logo.jpg",
+    
+    
+        "license": "This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.",
+    
+    "name": "Marcin Skalski\x27s Blog"
+    }
+    </script>
+<link rel="stylesheet" href="/css/style.min.css">
+<link rel="stylesheet" href="/css/lib/fontawesome-free/all.min.min.css">
+
+<link rel="stylesheet" href="/css/lib/animate/animate.min.min.css">
+
+    </head>
+    <body>
+        <script>
+            window.localStorage.setItem('theme', 'dark');
+            window.isDark = (window.localStorage && window.localStorage.getItem('theme')) === 'dark';
+            window.isDark && document.body.classList.add('dark-theme');
+        </script>
+        <div class="wrapper">
+            <nav class="navbar">
+    <div class="navbar-container">
+        <div class="navbar-header animated bounceIn">
+            <a href="https://mskalski.dev/">Marcin Skalski&#39;s Blog</a>
+        </div>
+        <div class="navbar-menu">
+            
+            
+                <a class="menu-item" href="https://mskalski.dev/posts" title="">Posts</a>
+            
+                <a class="menu-item" href="https://mskalski.dev/about" title="">About</a>
+            
+            <a href="javascript:void(0);" class="theme-switch"><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a>
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile">
+     <div class="navbar-container">
+        <div class="navbar-header">
+            <div class="navbar-header-title animated bounceIn">
+                <a href="https://mskalski.dev/">Marcin Skalski&#39;s Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="navbar-menu" id="mobile-menu">
+            
+            
+                <a class="menu-item" href="https://mskalski.dev/posts" title="">Posts</a>
+            
+                <a class="menu-item" href="https://mskalski.dev/about" title="">About</a>
+            
+            <a href="javascript:void(0);" class="theme-switch"><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a>
+        </div>
+    </div>
+</nav><main class="main">
+                <div class="container">
+                    <div class="post-warp"><div class="home-intro">
+    
+    
+        
+    
+    
+        <div class="home-avatar">
+            <a href="/posts">
+                <img src=/images/avatar.jpg alt="avatar">
+            </a>
+        </div>
+    
+
+    
+        <h2 class="home-description">
+            
+            <div id=rtp-88c6af0f128a77542192effd813b46b8 hidden=true>Can it run faster?</div>
+            <div id=tp-88c6af0f128a77542192effd813b46b8 class="typeit"></div>
+            
+                
+            
+        </h2>
+    
+
+    <div class="home-social-links">
+        
+    <a href="https://github.com/Automaat" rel="me noopener noreffer" target="_blank"><i class="fab fa-github-alt fa-fw"></i></a>
+
+
+    <a href="https://linkedin.com/in/skalskimarcin" rel="me noopener noreffer" target="_blank"><i class="fab fa-linkedin fa-fw"></i></a>
+
+
+    <a href="https://twitter.com/mskalski_" rel="me noopener noreffer" target="_blank"><i class="fab fa-twitter fa-fw"></i></a>
+
+
+    <a href="https://www.instagram.com/marcinskalski_photo/" rel="me noopener noreffer" target="_blank"><i class="fab fa-instagram fa-fw"></i></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <a href="mailto:skalskimarcin33%28at%29gmail.com" rel="me noopener noreffer"><i class="far fa-envelope" target="_blank fa-fw"></i></a>
+
+    </div>
+</div>
+<article class="post" itemscope itemtype="http://schema.org/Article">
+    
+    
+    
+
+    
+    
+    
+    <h1 class="post-title post-list-title" itemprop="name headline">
+        <a href="https://mskalski.dev/2020/05/xms_good_practice/">Why is it good practice to set -Xms along -Xmx java flag while using Concurrent Mark Sweep (CMS) collector?</a>
+    </h1>
+
+    <div class="post-meta">
+        <a class="author" href="https://mskalski.dev/" rel="author"><i class="fas fa-user-circle fa-fw"></i>Marcin Skalski&nbsp;</a>
+        published on&nbsp;<time datetime=2020-05-27>2020-05-27</time>&nbsp;
+        
+    </div>
+    <div class="post-content">
+        
+            
+            
+            
+            
+            
+            
+            
+            Recently I stumbled upon an interesting issue in one of our services. When going through our Grafana dashboards I have discovered that time spent in GC for this service is abnormally high. Immediately I started investigating this issue. The investigation was pretty quick and an issue was rather simple but it gave us a significant performance boost. So I decided to share it with you and shed some light on how adaptive heap sizing in jvm works and how it can sometimes be a problem.
+        
+    </div>
+    <div class="post-footer">
+        <a href="https://mskalski.dev/2020/05/xms_good_practice/">Read More</a>
+        
+    </div>
+</article><article class="post" itemscope itemtype="http://schema.org/Article">
+    
+    
+    
+
+    
+    
+    
+    <h1 class="post-title post-list-title" itemprop="name headline">
+        <a href="https://mskalski.dev/2019/12/timeouts/">Why my HTTP request did not timed out? Quick tour inside JDK and OkHttpClient for better understanding of timeouts</a>
+    </h1>
+
+    <div class="post-meta">
+        <a class="author" href="https://mskalski.dev/" rel="author"><i class="fas fa-user-circle fa-fw"></i>Marcin Skalski&nbsp;</a>
+        published on&nbsp;<time datetime=2019-12-13>2019-12-13</time>&nbsp;
+        
+    </div>
+    <div class="post-content">
+        
+            
+            
+            
+            
+            
+            
+            
+            So you have JVM based service (A) that is communicating with another service (B) using some kind of HTTP client. You know what you are doing so you gathered metrics statistics from your dependency. Especially it’s response times. Let’s assume that p99 of its response times form service B are 200ms. Also, this service is fairly close to you for example in the same data center. You adjusted your timeouts accordingly, for example, you’ve set connection timeout to 50ms and socket timeout to 250ms.
+        
+    </div>
+    <div class="post-footer">
+        <a href="https://mskalski.dev/2019/12/timeouts/">Read More</a>
+        
+    </div>
+</article></div></div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        <div class="copyright-line">
+            Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreffer">Hugo</a>&nbsp;|&nbsp;Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="external nofollow noopener noreffer">LoveIt<i class="far fa-heart fa-fw"></i></a>
+        </div>
+        <div class="copyright-line">
+            <i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2020</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://mskalski.dev/">Marcin Skalski</a></span><span class="license">&nbsp;|&nbsp;<a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+    </div>
+</footer>
+
+
+    
+    
+
+
+
+
+    
+    
+
+
+
+
+    
+    
+
+
+
+
+
+    
+    
+
+
+
+    
+    
+
+
+
+    
+    
+
+
+
+
+
+    
+    
+
+
+
+
+
+    
+    
+
+
+
+    
+    
+
+
+
+
+
+    
+    
+
+
+
+
+    
+    
+
+
+
+
+    
+    
+
+
+
+    
+    
+
+
+
+
+
+    
+    
+
+
+<script src="/js/lib/jquery/jquery.slim.min.min.js"></script>
+<script src="/js/lib/lazysizes/lazysizes.min.min.js"></script>
+<script src="/js/lib/smooth-scroll/smooth-scroll.polyfills.min.min.js"></script><script>window.scroll = new SmoothScroll('[data-scroll]', {speed: 300, speedAsDuration: true});</script>
+
+
+
+
+
+    <script src="/js/lib/typeit/typeit.modern.min.min.js"></script>
+    
+    
+        
+    
+    <script>window.typeitArr = [["tp-88c6af0f128a77542192effd813b46b8"]];</script>
+
+
+
+<script src="/js/blog.min.js"></script>
+
+
+    
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-154393799-1', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</div>
+        <a href="#" class="dynamic-to-top" id="dynamic-to-top" data-scroll><span>&nbsp;</span></a>
+    </body>
+</html>
