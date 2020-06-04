@@ -1,51 +1,40 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>Marcin Skalski&#39;s Blog on Marcin Skalski&#39;s Blog</title>
+        <title>Marcin Skalski&#39;s Blog</title>
         <link>https://mskalski.dev/</link>
-        <description>Recent content in Marcin Skalski&#39;s Blog on Marcin Skalski&#39;s Blog</description>
+        <description>Recent content on Marcin Skalski&#39;s Blog</description>
         <generator>Hugo -- gohugo.io</generator>
+        <language>en</language>
+        <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
+        <lastBuildDate>Wed, 27 May 2020 12:26:09 +0200</lastBuildDate>
         
-            <language>en</language>
+        <atom:link href="https://mskalski.dev/index.xml" rel="self" type="application/rss+xml" />
         
         
+            
+                <item>
+                    <title>Why is it good practice to set -Xms along -Xmx java flag while using Concurrent Mark Sweep (CMS) collector?</title>
+                    <link>https://mskalski.dev/2020/05/xms_good_practice/</link>
+                    <pubDate>Wed, 27 May 2020 12:26:09 +0200</pubDate>
+                    
+                    <guid>https://mskalski.dev/2020/05/xms_good_practice/</guid>
+                    <description>Recently I stumbled upon an interesting issue in one of our services. When going through our Grafana dashboards I have discovered that time spent in GC for this service is abnormally high. Immediately I started investigating this issue. The investigation was pretty quick and an issue was rather simple but it gave us a significant performance boost. So I decided to share it with you and shed some light on how adaptive heap sizing in jvm works and how it can sometimes be a problem.</description>
+                </item>
+            
         
-            <copyright>This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.</copyright>
+            
+                <item>
+                    <title>Why my HTTP request did not timed out? Quick tour inside JDK and OkHttpClient for better understanding of timeouts</title>
+                    <link>https://mskalski.dev/2019/12/timeouts/</link>
+                    <pubDate>Fri, 13 Dec 2019 07:45:47 +0100</pubDate>
+                    
+                    <guid>https://mskalski.dev/2019/12/timeouts/</guid>
+                    <description>So you have JVM based service (A) that is communicating with another service (B) using some kind of HTTP client. You know what you are doing so you gathered metrics statistics from your dependency. Especially it’s response times. Let’s assume that p99 of its response times form service B are 200ms. Also, this service is fairly close to you for example in the same data center. You adjusted your timeouts accordingly, for example, you’ve set connection timeout to 50ms and socket timeout to 250ms.</description>
+                </item>
+            
         
-        
-            <lastBuildDate>Wed, 27 May 2020 12:26:09 +0200</lastBuildDate>
-        
-        <atom:link href="https://mskalski.dev/" rel="self" type="application/rss+xml" />
-        
-            <item>
-                <title>Posts</title>
-                <link>https://mskalski.dev/posts/</link>
-                <pubDate>Wed, 27 May 2020 12:26:09 +0200</pubDate>
-                
-                <guid>https://mskalski.dev/posts/</guid>
-                <description></description>
-            </item>
-        
-            <item>
-                <title></title>
-                <link>https://mskalski.dev/about/</link>
-                <pubDate>Wed, 11 Dec 2019 11:04:49 +0800</pubDate>
-                
-                <guid>https://mskalski.dev/about/</guid>
-                <description>&lt;p&gt;Hi, my name is Marcin and since I remember I loved to know how things work. When I was young I
-disassembled a lot of toys and one old boombox. Unfortunately, I was not able to assemble all
-of them again. I high school I fell for physics and astronomy I could finally deepen the secrets of
-the universe and just before going to university I discovered how much fun programming so I decided to
-study Computer Science.&lt;/p&gt;
-&lt;p&gt;Since then a lot of has changed I have learned a lot, I started working, I met a lot of amazing people
-that helped me extend my knowledge. I got a dog (he is really cute btw 😉). Some time ago something has changed I don&#39;t
-know what yet but I recall my love for exploring and deeply understanding things, so I started to read JDK code, dig into
-JVM internals, try to understand how Linux kernel work and how it affects the performance of applications. Now I want to
-share this knowledge and my discoveries with others so I started this blog.&lt;/p&gt;
-&lt;p&gt;I am deeply focused on JVM internals and performance engineering right now but do a lot more in my free time. I really
-like photography, especially animal and landscape photography and my dream is to one day direct my own short movie.&lt;/p&gt;
-&lt;p&gt;Feel free to contact me on social media, any time you want.&lt;/p&gt;
-</description>
-            </item>
+            
         
     </channel>
 </rss>
