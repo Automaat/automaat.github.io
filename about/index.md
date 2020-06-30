@@ -17,3 +17,4 @@ I am deeply focused on JVM internals and performance engineering right now but d
 like photography, especially animal and landscape photography and my dream is to one day direct my own short film.
 
 Feel free to contact me on social media, any time you want.
+
