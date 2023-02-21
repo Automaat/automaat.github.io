@@ -6,7 +6,8 @@ comment: false
 ---
 
 # Public Speaking
-asdasd
+
+I am open to public speaking opportunities.
 
 ### Speaking history
 
