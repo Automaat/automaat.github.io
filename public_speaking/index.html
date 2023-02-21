@@ -1,0 +1,166 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=robots content="noodp">
+<title> - Marcin Skalski's Blog</title><meta name=Description content="Marcin Skalsi's personal blog about JVM internals, performance and other Java related stuff"><meta property="og:title" content>
+<meta property="og:description" content="Public Speaking I am open to public speaking opportunities.
+Speaking history    Event Role Topic Date Recording     Jugademy Speaker Service Mesh Introduction 06.2022 Youtube   Allegro Technical Platform Meeting Speaker How I almost deleted Allegro because of Consul UI design and human error 06.2022 Slides   DevDays Europe Panelist Serverless and Service Mesh – what is Next? 02.2022    Allegro Tech Labs Trainer System Design Workshop 04.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://mskalski.dev/public_speaking/"><meta property="og:image" content="https://mskalski.dev/logo.jpg"><meta property="article:section" content>
+<meta property="article:modified_time" content="2023-02-21T07:15:05+01:00"><meta property="og:site_name" content="My cool site">
+<meta name=twitter:card content="summary_large_image">
+<meta name=twitter:image content="https://mskalski.dev/logo.jpg">
+<meta name=twitter:title content>
+<meta name=twitter:description content="Public Speaking I am open to public speaking opportunities.
+Speaking history    Event Role Topic Date Recording     Jugademy Speaker Service Mesh Introduction 06.2022 Youtube   Allegro Technical Platform Meeting Speaker How I almost deleted Allegro because of Consul UI design and human error 06.2022 Slides   DevDays Europe Panelist Serverless and Service Mesh – what is Next? 02.2022    Allegro Tech Labs Trainer System Design Workshop 04.">
+<meta name=application-name content="Marcin Skalski's Blog">
+<meta name=apple-mobile-web-app-title content="Marcin Skalski's Blog"><meta name=theme-color content="#ffffff"><meta name=msapplication-TileColor content="#da532c"><link rel="shortcut icon" type=image/x-icon href=/favicon.ico>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link rel=manifest href=/site.webmanifest><link rel=canonical href=https://mskalski.dev/public_speaking/><link rel=next href=https://mskalski.dev/about/><link rel=stylesheet href=/css/style.min.css><link rel=preload href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css as=style onload="this.onload=null,this.rel='stylesheet'">
+<noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.1/css/all.min.css></noscript><link rel=preload href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css as=style onload="this.onload=null,this.rel='stylesheet'">
+<noscript><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css></noscript><script type=application/ld+json>{"@context":"http://schema.org","@type":"BlogPosting","headline":"","inLanguage":"en","mainEntityOfPage":{"@type":"WebPage","@id":"https:\/\/mskalski.dev\/public_speaking\/"},"image":["https:\/\/mskalski.dev\/images\/Apple-Devices-Preview.png"],"genre":"page","wordcount":112,"url":"https:\/\/mskalski.dev\/public_speaking\/","dateModified":"2023-02-21T07:15:05+01:00","license":"This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.","publisher":{"@type":"Organization","name":"Marcin Skalski","logo":"https:\/\/mskalski.dev\/images\/avatar.png"},"author":{"@type":"Person","name":"Marcin Skalski"},"description":""}</script></head>
+<body data-header-desktop=fixed data-header-mobile=auto><script type=text/javascript>(window.localStorage&&localStorage.getItem('theme')?localStorage.getItem('theme')==='dark':'dark'==='auto'?window.matchMedia('(prefers-color-scheme: dark)').matches:'dark'==='dark')&&document.body.setAttribute('theme','dark')</script>
+<div id=mask></div><div class=wrapper><header class=desktop id=header-desktop>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Marcin Skalski's Blog">Marcin Skalski's Blog</a>
+</div>
+<div class=menu>
+<div class=menu-inner><a class=menu-item href=/posts/> Posts </a><a class="menu-item active" href=/public_speaking/> Public Speaking </a><a class=menu-item href=/about/> About </a><span class="menu-item delimiter"></span><span class="menu-item search" id=search-desktop>
+<input type=text placeholder="Search titles or contents..." id=search-input-desktop>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-desktop title=Search>
+<i class="fas fa-search fa-fw" aria-hidden=true></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-desktop title=Clear>
+<i class="fas fa-times-circle fa-fw" aria-hidden=true></i>
+</a>
+<span class="search-button search-loading" id=search-loading-desktop>
+<i class="fas fa-spinner fa-fw fa-spin" aria-hidden=true></i>
+</span>
+</span><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme">
+<i class="fas fa-adjust fa-fw" aria-hidden=true></i>
+</a></div>
+</div>
+</div>
+</header><header class=mobile id=header-mobile>
+<div class=header-container>
+<div class=header-wrapper>
+<div class=header-title>
+<a href=/ title="Marcin Skalski's Blog">Marcin Skalski's Blog</a>
+</div>
+<div class=menu-toggle id=menu-toggle-mobile>
+<span></span><span></span><span></span>
+</div>
+</div>
+<div class=menu id=menu-mobile><div class=search-wrapper>
+<div class="search mobile" id=search-mobile>
+<input type=text placeholder="Search titles or contents..." id=search-input-mobile>
+<a href=javascript:void(0); class="search-button search-toggle" id=search-toggle-mobile title=Search>
+<i class="fas fa-search fa-fw" aria-hidden=true></i>
+</a>
+<a href=javascript:void(0); class="search-button search-clear" id=search-clear-mobile title=Clear>
+<i class="fas fa-times-circle fa-fw" aria-hidden=true></i>
+</a>
+<span class="search-button search-loading" id=search-loading-mobile>
+<i class="fas fa-spinner fa-fw fa-spin" aria-hidden=true></i>
+</span>
+</div>
+<a href=javascript:void(0); class=search-cancel id=search-cancel-mobile>
+Cancel
+</a>
+</div><a class=menu-item href=/posts/ title>Posts</a><a class=menu-item href=/public_speaking/ title>Public Speaking</a><a class=menu-item href=/about/ title>About</a><a href=javascript:void(0); class="menu-item theme-switch" title="Switch Theme">
+<i class="fas fa-adjust fa-fw" aria-hidden=true></i>
+</a></div>
+</div>
+</header><div class="search-dropdown desktop">
+<div id=search-dropdown-desktop></div>
+</div>
+<div class="search-dropdown mobile">
+<div id=search-dropdown-mobile></div>
+</div><main class=main>
+<div class=container><div class="page single special"><h1 class="single-title animate__animated animate__pulse animate__faster"></h1><div class=content id=content><h1 id=public-speaking>Public Speaking</h1>
+<p>I am open to public speaking opportunities.</p>
+<h3 id=speaking-history>Speaking history</h3>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Role</th>
+<th>Topic</th>
+<th>Date</th>
+<th>Recording</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href=https://jugademy.eu/ target=_blank rel="noopener noreffer">Jugademy</a></td>
+<td>Speaker</td>
+<td>Service Mesh Introduction</td>
+<td>06.2022</td>
+<td><a href="https://www.youtube.com/watch?v=gNTMwJDCCIk" target=_blank rel="noopener noreffer">Youtube</a></td>
+</tr>
+<tr>
+<td>Allegro Technical Platform Meeting</td>
+<td>Speaker</td>
+<td>How I almost deleted Allegro because of Consul UI design and human error</td>
+<td>06.2022</td>
+<td><a href="https://drive.google.com/file/d/1IvGlR1RC41yubWj5vuZ72mjYqTjfjBpY/view?usp=sharing" target=_blank rel="noopener noreffer">Slides</a></td>
+</tr>
+<tr>
+<td><a href=https://devdays.lt/2022 target=_blank rel="noopener noreffer">DevDays Europe</a></td>
+<td>Panelist</td>
+<td>Serverless and Service Mesh – what is Next?</td>
+<td>02.2022</td>
+<td></td>
+</tr>
+<tr>
+<td><a href=https://www.meetup.com/allegrotech/events/282421464/ target=_blank rel="noopener noreffer">Allegro Tech Labs</a></td>
+<td>Trainer</td>
+<td>System Design Workshop</td>
+<td>04.2021 and 12.2021</td>
+<td></td>
+</tr>
+<tr>
+<td><a href=https://www.meetup.com/allegrotech/events/280149404/ target=_blank rel="noopener noreffer">Allegro Tech Meeting</a></td>
+<td>Track Host</td>
+<td>Security track</td>
+<td>09.2021</td>
+<td></td>
+</tr>
+<tr>
+<td><a href=https://allegro.pl/zobacz/atm2021#okonferencji target=_blank rel="noopener noreffer">Allegro Tech Meeting internal</a></td>
+<td>Track Host</td>
+<td>Software track</td>
+<td>09.2021</td>
+<td></td>
+</tr>
+<tr>
+<td><a href=https://4developers.org.pl/ target=_blank rel="noopener noreffer">4Developers</a></td>
+<td>Speaker</td>
+<td>Wszystko co chciałeś wiedzieć o wątkach a bałeś się zapytać</td>
+<td>05.2021</td>
+<td><a href="https://www.youtube.com/watch?v=PFGCrMWP2b8" target=_blank rel="noopener noreffer">Youtube</a></td>
+</tr>
+<tr>
+<td><a href=https://allegro.pl/zobacz/atm2021 target=_blank rel="noopener noreffer">Allegro Tech Meeting</a></td>
+<td>Speaker</td>
+<td>Wszystko co chciałeś wiedzieć o wątkach a bałeś się zapytać</td>
+<td>09.2020</td>
+<td><a href="https://www.youtube.com/watch?v=-_eMwhlyM5Q" target=_blank rel="noopener noreffer">Youtube</a></td>
+</tr>
+</tbody>
+</table>
+</div></div></div>
+</main><footer class=footer>
+<div class=footer-container><div class=footer-line>Powered by <a href=https://gohugo.io/ target=_blank rel="noopener noreffer" title="Hugo 0.91.2">Hugo</a> | Theme - <a href=https://github.com/dillonzq/LoveIt target=_blank rel="noopener noreffer" title="LoveIt 0.2.11"><i class="far fa-kiss-wink-heart fa-fw" aria-hidden=true></i> LoveIt</a>
+</div><div class=footer-line itemscope itemtype=http://schema.org/CreativeWork><i class="far fa-copyright fa-fw" aria-hidden=true></i><span itemprop=copyrightYear>2019 - 2023</span><span class=author itemprop=copyrightHolder>&nbsp;<a href=/ target=_blank>Marcin Skalski</a></span>&nbsp;|&nbsp;<span class=license><a rel="license external nofollow noopener noreffer" href=https://creativecommons.org/licenses/by-nc/4.0/ target=_blank>CC BY-NC 4.0</a></span></div>
+</div>
+</footer></div>
+<div id=fixed-buttons><a href=# id=back-to-top class=fixed-button title="Back to Top">
+<i class="fas fa-arrow-up fa-fw" aria-hidden=true></i>
+</a><a href=# id=view-comments class=fixed-button title="View Comments">
+<i class="fas fa-comment fa-fw" aria-hidden=true></i>
+</a>
+</div><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.css><script type=text/javascript src=https://cdn.jsdelivr.net/npm/autocomplete.js@0.38.1/dist/autocomplete.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/algoliasearch@4.13.1/dist/algoliasearch-lite.umd.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/lazysizes@5.3.2/lazysizes.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/clipboard@2.0.11/dist/clipboard.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/sharer.js@0.5.1/sharer.min.js></script><script type=text/javascript src=https://cdn.jsdelivr.net/npm/cookieconsent@3.1.1/build/cookieconsent.min.js></script><script type=text/javascript>window.config={code:{copyTitle:"Copy to clipboard",maxShownLines:10},comment:{},cookieconsent:{content:{dismiss:"Got it!",link:"Learn more",message:"This website uses Cookies to improve your experience."},enable:!0,palette:{button:{background:"#f0f0f0"},popup:{background:"#1aa3ff"}},theme:"edgeless"},search:{algoliaAppID:"PASDMWALPK",algoliaIndex:"index.en",algoliaSearchKey:"b42948e51daaa93df92381c8e2ac0f93",highlightTag:"em",maxResultLength:10,noResultsFound:"No results found",snippetLength:30,type:"algolia"}}</script><script type=text/javascript src=/js/theme.min.js></script></body>
+</html>
