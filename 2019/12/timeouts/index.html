@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Why my HTTP request did not timed out? Quick tour inside JDK and OkHttpClient for better understanding of timeouts | Marcin Skalski&#39;s Blog</title><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noodp" />
+<meta name="Description" content="Marcin Skalsi&#39;s personal blog about JVM internals, performance and other Java related stuff">
+<link rel="next" href="https://mskalski.dev/2020/05/xms_good_practice/" />
+<link rel="canonical" href="https://mskalski.dev/2019/12/timeouts/" />
+<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#da532c">
+<meta name="theme-color" content="#ffffff">
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Why my HTTP request did not timed out? Quick tour inside JDK and OkHttpClient for better understanding of timeouts"/>
+<meta name="twitter:description" content="So you have JVM based service (A) that is communicating with another service (B) using some kind of HTTP client. You know what you are doing so you gathered metrics statistics from your dependency. Especially it’s response times. Let’s assume that p99 of its response times form service B are 200ms. Also, this service is fairly close to you for example in the same data center. You adjusted your timeouts accordingly, for example, you’ve set connection timeout to 50ms and socket timeout to 250ms."/>
+<script type="application/ld+json">
+    {
+    "@context": "http://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Why my HTTP request did not timed out? Quick tour inside JDK and OkHttpClient for better understanding of timeouts",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https:\/\/mskalski.dev\/2019\/12\/timeouts\/"
+    },
+    
+        "image": {
+            "@type": "ImageObject",
+            "url": "https:\/\/mskalski.dev\/cover.png",
+            "width":  800 ,
+            "height":  600 
+        },
+    
+    "genre": "posts",
+    
+    "wordcount":  1788 ,
+    "url": "https:\/\/mskalski.dev\/2019\/12\/timeouts\/",
+    
+        "datePublished": "2019-12-13T07:45:47\x2b01:00",
+    
+    
+        "dateModified": "2019-12-13T07:45:47\x2b01:00",
+    
+    
+        "license": "This work is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License.",
+    
+    
+        "publisher": {
+            "@type": "Organization",
+            "name": "Marcin Skalski",
+            "logo": {
+            "@type": "ImageObject",
+            "url": "https:\/\/mskalski.dev\/logo.jpg",
+            "width":  127 ,
+            "height":  40 
+            }
+        },
+    
+    
+    "description": ""
+    }
+    </script>
+<link rel="stylesheet" href="/css/style.min.css">
+<link rel="stylesheet" href="/css/lib/fontawesome-free/all.min.min.css">
+
+<link rel="stylesheet" href="/css/lib/animate/animate.min.min.css">
+
+    </head>
+    <body>
+        <script>
+            window.localStorage.setItem('theme', 'dark');
+            window.isDark = (window.localStorage && window.localStorage.getItem('theme')) === 'dark';
+            window.isDark && document.body.classList.add('dark-theme');
+        </script>
+        <div class="wrapper">
+            <nav class="navbar">
+    <div class="navbar-container">
+        <div class="navbar-header">
+            <a href="https://mskalski.dev/">Marcin Skalski&#39;s Blog</a>
+        </div>
+        <div class="navbar-menu">
+            
+            
+                <a class="menu-item" href="https://mskalski.dev/posts" title="">Posts</a>
+            
+                <a class="menu-item" href="https://mskalski.dev/about" title="">About</a>
+            
+            <a href="javascript:void(0);" class="theme-switch"><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a>
+        </div>
+    </div>
+</nav>
+<nav class="navbar-mobile">
+     <div class="navbar-container">
+        <div class="navbar-header">
+            <div class="navbar-header-title animated bounceIn">
+                <a href="https://mskalski.dev/">Marcin Skalski&#39;s Blog</a>
+            </div>
+            <div class="menu-toggle" id="menu-toggle">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+        <div class="navbar-menu" id="mobile-menu">
+            
+            
+                <a class="menu-item" href="https://mskalski.dev/posts" title="">Posts</a>
+            
+                <a class="menu-item" href="https://mskalski.dev/about" title="">About</a>
+            
+            <a href="javascript:void(0);" class="theme-switch"><i class="fas fa-adjust fa-rotate-180 fa-fw"></i></a>
+        </div>
+    </div>
+</nav><main class="main">
+                <div class="container">
+                    
+    
+    
+    
+
+    <article class="post-warp">
+        <h1 class="post-title">Why my HTTP request did not timed out? Quick tour inside JDK and OkHttpClient for better understanding of timeouts</h1>
+
+        <div class="post-meta">
+            <div class="post-meta-main">
+                <a class="author" href="https://mskalski.dev/" rel="author"><i class="fas fa-user-circle fa-fw"></i>Marcin Skalski&nbsp;</a>
+                
+            </div>
+            <div class="post-meta-other">
+                <i class="far fa-calendar-alt fa-fw"></i><time datetime=2019-12-13>2019-12-13</time>&nbsp;
+                <i class="fas fa-pencil-alt fa-fw"></i>about 1788 words&nbsp;
+                <i class="far fa-clock fa-fw"></i>9 min&nbsp;</div>
+        </div>
+
+        
+
+        
+
+        <div class="post-content">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            <p>So you have JVM based service (A) that is communicating with another service (B) using some kind of HTTP client.
+You know what you are doing so you gathered metrics statistics from your dependency. Especially it’s response times.
+Let’s assume that p99 of its response times form service B are 200ms. Also, this service is fairly close to you for example in the
+same data center. You adjusted your timeouts accordingly, for example, you’ve set <code>connection timeout</code> to 50ms
+and <code>socket timeout</code> to 250ms.  Everything works fine but you are really thorough, have great
+observability in your service and monitor metrics regularly. One day you noticed something:</p>
+<p><img src="/images/2019/12/grafana.png" alt=""></p>
+<p>Wait, what? How is this even possible? You have set timeouts and in the
+worst-case scenario, your requests should be timed out after 250ms.</p>
+<p>Connection timeout restricts how long we will wait until the connection is established. So the result can be
+either an open connection or unreachable host. So there shouldn’t be any problems. Let's take a look at socket timeout
+maybe we can find something interesting.</p>
+<a class="post-dummy-target" id="talk-is-cheap-show-me-the-code"></a><h1>&ldquo;Talk is cheap, show me the code&rdquo;</h1>
+<p>To get a better understanding of whats going on we could write a simple socket server and simple client. All of the code was
+written in java 11, on <code>AdoptOpenJDK 11.0.4</code></p>
+<p>Here is the code of server:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[</span><span class="o">]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+        <span class="c1">//starting server
+</span><span class="c1"></span>        <span class="k">try</span> <span class="o">(</span><span class="n">var</span> <span class="n">listener</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ServerSocket</span><span class="o">(</span><span class="n">59090</span><span class="o">)</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;The simple server is running...&#34;</span><span class="o">)</span><span class="o">;</span>
+
+            <span class="c1">//message to send
+</span><span class="c1"></span>            <span class="kt">byte</span><span class="o">[</span><span class="o">]</span> <span class="n">test</span> <span class="o">=</span> <span class="o">{</span><span class="n">1</span><span class="o">}</span><span class="o">;</span>
+
+            <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">try</span> <span class="o">(</span><span class="n">var</span> <span class="n">socket</span> <span class="o">=</span> <span class="n">listener</span><span class="o">.</span><span class="na">accept</span><span class="o">(</span><span class="o">)</span><span class="o">)</span> <span class="o">{</span>
+                    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Accepted connection&#34;</span><span class="o">)</span><span class="o">;</span>
+                    <span class="n">OutputStream</span> <span class="n">outputStream</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">(</span><span class="o">)</span><span class="o">;</span>
+                    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">200</span><span class="o">;</span> <span class="n">i</span><span class="o">+</span><span class="o">+</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">outputStream</span><span class="o">.</span><span class="na">write</span><span class="o">(</span><span class="n">test</span><span class="o">)</span><span class="o">;</span>
+                    <span class="o">}</span>
+                    <span class="n">outputStream</span><span class="o">.</span><span class="na">close</span><span class="o">(</span><span class="o">)</span><span class="o">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>It is not rocket science, we are creating a new instance of <code>SocketServer</code> running on port <code>59090</code>. Next in line (9) we
+prepare the message that we will send and it is a single byte, we will be sending it 200 times.
+Next, we have an infinite loop that will wait for client connections and when this happens we will send
+him our message.</p>
+<p>Now, let's take a look at the client:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">SimpleClient</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[</span><span class="o">]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+        <span class="c1">//creating socket with timeout
+</span><span class="c1"></span>        <span class="n">var</span> <span class="n">socket</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Socket</span><span class="o">(</span><span class="s">&#34;localhost&#34;</span><span class="o">,</span> <span class="n">59090</span><span class="o">)</span><span class="o">;</span>
+        <span class="n">socket</span><span class="o">.</span><span class="na">setSoTimeout</span><span class="o">(</span><span class="n">100</span><span class="o">)</span><span class="o">;</span>
+
+        <span class="c1">//byte array to store output
+</span><span class="c1"></span>        <span class="kt">byte</span><span class="o">[</span><span class="o">]</span> <span class="n">b</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">byte</span><span class="o">[</span><span class="n">1024</span><span class="o">]</span><span class="o">;</span>
+
+        <span class="kt">long</span> <span class="n">start</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">(</span><span class="o">)</span><span class="o">;</span>
+
+        <span class="n">var</span> <span class="n">input</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="na">getInputStream</span><span class="o">(</span><span class="o">)</span><span class="o">;</span>
+        <span class="n">var</span> <span class="n">read</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">b</span><span class="o">,</span> <span class="n">0</span><span class="o">,</span> <span class="n">300</span><span class="o">)</span><span class="o">;</span>
+        <span class="n">var</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+        <span class="k">while</span> <span class="o">(</span><span class="n">offset</span> <span class="o">&lt;</span><span class="o">=</span> <span class="n">200</span> <span class="o">&amp;</span><span class="o">&amp;</span> <span class="n">read</span> <span class="o">!</span><span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">offset</span> <span class="o">+</span><span class="o">=</span> <span class="n">read</span><span class="o">;</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;read: &#34;</span> <span class="o">+</span> <span class="n">read</span> <span class="o">+</span> <span class="s">&#34;bytes&#34;</span><span class="o">)</span><span class="o">;</span>
+            <span class="n">read</span> <span class="o">=</span> <span class="n">input</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">b</span><span class="o">,</span> <span class="n">offset</span><span class="o">,</span> <span class="n">200</span><span class="o">)</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kt">long</span> <span class="n">finish</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">(</span><span class="o">)</span><span class="o">;</span>
+        <span class="kt">long</span> <span class="n">time</span> <span class="o">=</span> <span class="n">finish</span> <span class="o">-</span> <span class="n">start</span><span class="o">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Operation took: &#34;</span> <span class="o">+</span> <span class="n">time</span><span class="o">)</span><span class="o">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;In total read &#34;</span> <span class="o">+</span> <span class="n">offset</span> <span class="o">+</span> <span class="s">&#34; bytes.&#34;</span><span class="o">)</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Not much to see here, we are creating new <code>Socket</code> instance that will connect to our localhost on port <code>59090</code> then we set
+<code>soTimout</code> to <code>100ms</code> this is what we will be monitoring. Next, there is a prepared byte array to store the response from our
+server. With everything prepared we can start reading. We know that we should read <code>200 bytes</code> so we will read until we
+have collect 200 bytes and there is something to read. At the end to check if everything went well and we read the amount of
+bytes that were expected we can print our reading offset.
+(Function <code>InputStream.read(byte b[], int off, int len)</code> returns amount of bytes that were read).</p>
+<p>Fantastic we have written some code so we can run it and measure how long it took to read the whole message.
+I ran it a few times and got an average response of <code>17ms</code> and we have much time to spare until we reach the timeout.
+Now lets see what happens when connection becomes slower. To simulate it we will add sleep in our server just after we
+accept new connection:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;Accepted connection&#34;</span><span class="o">)</span><span class="o">;</span>
+<span class="n">sleep</span><span class="o">(</span><span class="n">150</span><span class="o">)</span><span class="o">;</span>
+<span class="n">OutputStream</span> <span class="n">outputStream</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">(</span><span class="o">)</span><span class="o">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>After running again our code we will get expected timeout exception :)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="n">Exception</span> <span class="n">in</span> <span class="n">thread</span> <span class="s">&#34;main&#34;</span> <span class="n">java</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">SocketTimeoutException</span><span class="o">:</span> <span class="n">Read</span> <span class="n">timed</span> <span class="n">out</span>
+	<span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">SocketInputStream</span><span class="o">.</span><span class="na">socketRead0</span><span class="o">(</span><span class="n">Native</span> <span class="n">Method</span><span class="o">)</span>
+	<span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">SocketInputStream</span><span class="o">.</span><span class="na">socketRead</span><span class="o">(</span><span class="n">SocketInputStream</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="n">115</span><span class="o">)</span>
+	<span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">SocketInputStream</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">SocketInputStream</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="n">168</span><span class="o">)</span>
+	<span class="n">at</span> <span class="n">java</span><span class="o">.</span><span class="na">base</span><span class="o">/</span><span class="n">java</span><span class="o">.</span><span class="na">net</span><span class="o">.</span><span class="na">SocketInputStream</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">SocketInputStream</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="n">140</span><span class="o">)</span>
+	<span class="n">at</span> <span class="n">com</span><span class="o">.</span><span class="na">skalski</span><span class="o">.</span><span class="na">SimpleClient</span><span class="o">.</span><span class="na">main</span><span class="o">(</span><span class="n">SimpleClient</span><span class="o">.</span><span class="na">java</span><span class="o">:</span><span class="n">17</span><span class="o">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>Everything works as expected. We can take a closer look right now what is going on inside of JDK code.
+When we call <code>socket.setSoTimeout(100)</code>, this piece of code is executed:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">setSoTimeout</span><span class="o">(</span><span class="kt">int</span> <span class="n">timeout</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">SocketException</span> <span class="o">{</span>
+       <span class="k">if</span> <span class="o">(</span><span class="n">isClosed</span><span class="o">(</span><span class="o">)</span><span class="o">)</span>
+           <span class="k">throw</span> <span class="k">new</span> <span class="n">SocketException</span><span class="o">(</span><span class="s">&#34;Socket is closed&#34;</span><span class="o">)</span><span class="o">;</span>
+       <span class="k">if</span> <span class="o">(</span><span class="n">timeout</span> <span class="o">&lt;</span> <span class="n">0</span><span class="o">)</span>
+         <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;timeout can&#39;t be negative&#34;</span><span class="o">)</span><span class="o">;</span>
+
+       <span class="n">getImpl</span><span class="o">(</span><span class="o">)</span><span class="o">.</span><span class="na">setOption</span><span class="o">(</span><span class="n">SocketOptions</span><span class="o">.</span><span class="na">SO_TIMEOUT</span><span class="o">,</span> <span class="n">timeout</span><span class="o">)</span><span class="o">;</span>
+   <span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>As we can see in line (7) <code>SocketOptions.SO_TIMEOUT</code> option is set on our <code>java.net.SocketImpl</code> class.
+In this scenario, <code>java.net.PlainSocketImpl</code> implementation of a socket is used. When we look at our client code in
+line (13) we get <code>InputStream</code> form our socket and it is <code>java.net.SocketInputStream</code>. Next in line (19) we are calling
+<code>read(byte b[], int off, int len)</code> method, underneath it is using written in C method <code>Java_java_net_SocketInputStream_socketRead0</code>
+This method is long and you do not need to read it all. (But I encourage you to do it 😉) The important for us is part:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="k">if</span> <span class="p">(</span><span class="n">timeout</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">timeout</span> <span class="o">&lt;</span><span class="o">=</span> <span class="mi">5000</span> <span class="o">|</span><span class="o">|</span> <span class="o">!</span><span class="n">isRcvTimeoutSupported</span><span class="p">)</span> <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">NET_Timeout</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span><span class="p">;</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">&lt;</span><span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">=</span><span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="sa"></span><span class="s">&#34;</span><span class="s">java/net/SocketTimeoutException</span><span class="s">&#34;</span><span class="p">,</span>
+                                <span class="sa"></span><span class="s">&#34;</span><span class="s">Read timed out</span><span class="s">&#34;</span><span class="p">)</span><span class="p">;</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">ret</span> <span class="o">=</span><span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="sa"></span><span class="s">&#34;</span><span class="s">java/net/SocketException</span><span class="s">&#34;</span><span class="p">,</span> <span class="sa"></span><span class="s">&#34;</span><span class="s">socket closed</span><span class="s">&#34;</span><span class="p">)</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">bufP</span> <span class="o">!</span><span class="o">=</span> <span class="n">BUF</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">free</span><span class="p">(</span><span class="n">bufP</span><span class="p">)</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="cm">/*check if the socket has been closed while we were in timeout*/</span>
+        <span class="n">newfd</span> <span class="o">=</span> <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-</span><span class="o">&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">fdObj</span><span class="p">,</span> <span class="n">IO_fd_fdID</span><span class="p">)</span><span class="p">;</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">newfd</span> <span class="o">=</span><span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">JNU_ThrowByName</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="sa"></span><span class="s">&#34;</span><span class="s">java/net/SocketException</span><span class="s">&#34;</span><span class="p">,</span> <span class="sa"></span><span class="s">&#34;</span><span class="s">Socket closed</span><span class="s">&#34;</span><span class="p">)</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">bufP</span> <span class="o">!</span><span class="o">=</span> <span class="n">BUF</span><span class="p">)</span> <span class="p">{</span>
+                <span class="n">free</span><span class="p">(</span><span class="n">bufP</span><span class="p">)</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>In the line (3) <code>NET_Timeout</code> function is called, when we look inside it we can see that it is calling operating system
+polling function that waits for events on file descriptor, in Linux it is <code>poll(2)</code> in BSD <code>select(2)</code> and <code>select(4)</code> in Windows.
+For all of those functions timeout that we specified earlier is passed. Those polling functions will wait without blocking
+until the end of our timeout or for events on file descriptors to occur. They return how many descriptors registered some events.
+In next steps errors are handled and <code>SocketTimeoutException</code> is thrown if polling function returned <code>-1</code> which means it
+timed out. If everything went well this piece of code is executed:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-c" data-lang="c"><span class="n">nread</span> <span class="o">=</span> <span class="n">recv</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">bufP</span><span class="p">,</span> <span class="n">len</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="p">;</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">nread</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-</span><span class="o">&gt;</span><span class="n">SetByteArrayRegion</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">off</span><span class="p">,</span> <span class="n">nread</span><span class="p">,</span> <span class="p">(</span><span class="n">jbyte</span> <span class="o">*</span><span class="p">)</span><span class="n">bufP</span><span class="p">)</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>In line (1) <code>recv</code> function is called it is used to read bytes from the socket, then these bytes are populated to byte array
+we have passed to <code>InputStream.read</code> function and number of read bytes is returned.</p>
+<a class="post-dummy-target" id="returning-to-our-simple-client"></a><h1>Returning to our simple client</h1>
+<p>So we know how socket timeout work, it is pretty simple and it does what most of us probably thought it do.
+But it still did not explain why some of the requests to service B took more than timeout, so let's dig deeper.</p>
+<p>What happens when we put our sleep just after sending the first byte?
+In our logs, we can see that we have read a single byte and then we got <code>SocketTimeoutException</code>, so our client read the first
+part of the message and then encountered a problem. But it was expected because the server took much longer to respond
+than we thought it will. I think we can test at least one more thing, we can play with our sleep time. Lets set it to <code>50ms</code>
+and run our code. Here is the result of execution:</p>
+<pre><code>Operation took: 10490
+In total read 200 bytes.
+</code></pre><p>Whaat? <code>Operation took: 10490</code> how is that even possible? We set <code>socketTimeout</code> to <code>100ms</code> and our connection took
+more than 10 seconds. Maybe there is some bug? Let's run it again:</p>
+<pre><code>Operation took: 10509
+In total read 200 bytes.
+</code></pre><p>Almost the same result. Can it be our original problem? Yes it is! It is almost exactly how <code>OkHttpClient</code> works. Here is
+code sample from this library:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre class="chroma"><code class="language-java" data-lang="java"><span class="kd">private</span> <span class="kt">void</span> <span class="nf">readFrom</span><span class="o">(</span><span class="n">InputStream</span> <span class="n">in</span><span class="o">,</span> <span class="kt">long</span> <span class="n">byteCount</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">forever</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">in</span> <span class="o">=</span><span class="o">=</span> <span class="kc">null</span><span class="o">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&#34;in == null&#34;</span><span class="o">)</span><span class="o">;</span>
+    <span class="k">while</span> <span class="o">(</span><span class="n">byteCount</span> <span class="o">&gt;</span> <span class="n">0</span> <span class="o">|</span><span class="o">|</span> <span class="n">forever</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">Segment</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">writableSegment</span><span class="o">(</span><span class="n">1</span><span class="o">)</span><span class="o">;</span>
+      <span class="kt">int</span> <span class="n">maxToCopy</span> <span class="o">=</span> <span class="o">(</span><span class="kt">int</span><span class="o">)</span> <span class="n">Math</span><span class="o">.</span><span class="na">min</span><span class="o">(</span><span class="n">byteCount</span><span class="o">,</span> <span class="n">Segment</span><span class="o">.</span><span class="na">SIZE</span> <span class="o">-</span> <span class="n">tail</span><span class="o">.</span><span class="na">limit</span><span class="o">)</span><span class="o">;</span>
+      <span class="kt">int</span> <span class="n">bytesRead</span> <span class="o">=</span> <span class="n">in</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="n">tail</span><span class="o">.</span><span class="na">data</span><span class="o">,</span> <span class="n">tail</span><span class="o">.</span><span class="na">limit</span><span class="o">,</span> <span class="n">maxToCopy</span><span class="o">)</span><span class="o">;</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">bytesRead</span> <span class="o">=</span><span class="o">=</span> <span class="o">-</span><span class="n">1</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">forever</span><span class="o">)</span> <span class="k">return</span><span class="o">;</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">EOFException</span><span class="o">(</span><span class="o">)</span><span class="o">;</span>
+      <span class="o">}</span>
+      <span class="n">tail</span><span class="o">.</span><span class="na">limit</span> <span class="o">+</span><span class="o">=</span> <span class="n">bytesRead</span><span class="o">;</span>
+      <span class="n">size</span> <span class="o">+</span><span class="o">=</span> <span class="n">bytesRead</span><span class="o">;</span>
+      <span class="n">byteCount</span> <span class="o">-</span><span class="o">=</span> <span class="n">bytesRead</span><span class="o">;</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>This client have to read the expected amount of data and will read in parts until whole message was send, so even if
+single byte was send via socket before timeout elapsed <code>SocketTimeoutException</code> will not be thrown.</p>
+<a class="post-dummy-target" id="but-how-does-it-know-how-many-bytes-should-it-read"></a><h3>But how does it know how many bytes should it read?</h3>
+<p>The answer to this question is actually pretty simple. <code>HTTP</code> response has a predefined scheme. First of all, we have <code>Status line</code>
+which contains status code, next we have <code>headers</code> and finally <code>message body</code>. Headers and body are separated with <code>CRLF</code>
+Also one of the headers is <code>Content-Length</code> which indicates how long message body will be. So while receiving response
+from another service via <code>HTTP/1.1</code> we can calculate when to stop reading from the socket after receiving an appropriate amount
+of bytes.</p>
+<p><img src="/images/2019/12/HTTP_Response.png" alt="Http protocol"></p>
+<a class="post-dummy-target" id="summing-up"></a><h1>Summing up</h1>
+<p>After reading this short article you should know how timeouts work inside of <code>JDK</code> and why your request to another service
+took longer than expected. The Most important piece of knowledge you should remember is that when you set <code>socketTimeout</code> for
+example on <code>RestTemplate</code> while using Spring you set a timeout for every single read form socket which effectively becomes
+time from last bit of information after your connection will be interrupted. You should keep it in mind when you set timeouts
+next time in your application and adjust them accordingly. Fortunately since <code>3.12.0</code> version of <code>OkHttp</code> client you can specify
+call timeout <code>OkHttpClient.Builder.callTimeout()</code> which will limit whole operation time.</p>
+<p>That all from me, thank you all for reading my first post. Feel free to let me know how you liked it, also I encourage
+you to comment, ask questions and share the knowledge with your coworkers.</p>
+<a class="post-dummy-target" id="references"></a><h2>References</h2>
+<p><a href="https://github.com/Automaat/extended_timeouts">Source code of examples used in this post</a></p>
+<p><a href="https://github.com/square/okhttp/">OkHttp</a></p>
+<p><a href="https://hg.openjdk.java.net/jdk/jdk">JDK</a></p>
+
+        </div>
+
+        <div class="post-footer" id="post-footer">
+    <div class="post-info">
+        <div class="post-info-line">
+            <div class="post-info-mod">
+                <span>This article is updated with 2019-12-13</span>
+            </div>
+            <div class="post-info-license">
+                
+            </div>
+        </div>
+        <div class="post-info-line">
+            <div class="post-info-md">
+                
+                    
+                        <span><a class="link-to-markdown" href="https://mskalski.dev/2019/12/timeouts/index.md" target="_blank"></a></span>
+                    
+                
+            </div>
+            <div class="post-info-share">
+                
+                    <span>
+    
+        <a href="//twitter.com/share?url=https%3a%2f%2fmskalski.dev%2f2019%2f12%2ftimeouts%2f&amp;text=Why%20my%20HTTP%20request%20did%20not%20timed%20out%3f%20Quick%20tour%20inside%20JDK%20and%20OkHttpClient%20for%20better%20understanding%20of%20timeouts&amp;via=mskalski_" target="_blank" title="Share on Twitter">
+            <i class="fab fa-twitter fa-fw"></i>
+        </a>
+    
+    
+        <a href="//www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fmskalski.dev%2f2019%2f12%2ftimeouts%2f" target="_blank" title="Share on Facebook">
+            <i class="fab fa-facebook-square fa-fw"></i>
+        </a>
+    
+    
+        <a href="//reddit.com/submit?url=https%3a%2f%2fmskalski.dev%2f2019%2f12%2ftimeouts%2f&amp;title=Why%20my%20HTTP%20request%20did%20not%20timed%20out%3f%20Quick%20tour%20inside%20JDK%20and%20OkHttpClient%20for%20better%20understanding%20of%20timeouts" target="_blank" title="Share on Reddit">
+            <i class="fab fa-reddit fa-fw"></i>
+        </a>
+    
+    
+    
+    
+    
+    
+    
+    
+</span>
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="post-info-more">
+        <section>
+            
+        </section>
+        <section>
+            <span><a href="javascript:window.history.back();">Back</a></span>&nbsp;|&nbsp;<span><a href="https://mskalski.dev/">Home</a></span>
+        </section>
+    </div>
+
+    <div class="post-nav">
+        
+        
+            <a href="https://mskalski.dev/2020/05/xms_good_practice/" class="next" rel="next" title="Why is it good practice to set -Xms along -Xmx java flag while using Concurrent Mark Sweep (CMS) collector?">Why is it good practice to set -Xms along -Xmx java flag while using Concurrent Mark Sweep (CMS) collector?<i class="fas fa-angle-right fa-fw"></i></a>
+        
+    </div>
+</div>
+
+        <div class="post-comment">
+            
+            
+
+            
+        </div>
+    </article></div>
+            </main>
+            <footer class="footer">
+    <div class="copyright">
+        <div class="copyright-line">
+            Powered by <a href="https://gohugo.io/" target="_blank" rel="external nofollow noopener noreffer">Hugo</a>&nbsp;|&nbsp;Theme - <a href="https://github.com/dillonzq/LoveIt" target="_blank" rel="external nofollow noopener noreffer">LoveIt<i class="far fa-heart fa-fw"></i></a>
+        </div>
+        <div class="copyright-line">
+            <i class="far fa-copyright fa-fw"></i><span itemprop="copyrightYear">2019 - 2020</span><span class="author" itemprop="copyrightHolder">&nbsp;<a href="https://mskalski.dev/">Marcin Skalski</a></span><span class="license">&nbsp;|&nbsp;<a rel="license external nofollow noopener noreffer" href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a></span></div>
+    </div>
+</footer>
+
+
+    
+    
+
+
+
+
+    
+    
+
+
+
+
+    
+    
+
+
+
+
+
+    
+    
+
+
+
+    
+    
+
+
+
+    
+    
+
+
+
+
+
+    
+    
+
+
+
+
+
+    
+    
+
+
+
+    
+    
+
+
+
+
+
+    
+    
+
+
+
+
+    
+    
+
+
+
+
+    
+    
+
+
+
+    
+    
+
+
+
+
+
+    
+    
+
+
+<script src="/js/lib/jquery/jquery.slim.min.min.js"></script>
+<script src="/js/lib/lazysizes/lazysizes.min.min.js"></script>
+<script src="/js/lib/smooth-scroll/smooth-scroll.polyfills.min.min.js"></script><script>window.scroll = new SmoothScroll('[data-scroll]', {speed: 300, speedAsDuration: true});</script>
+
+
+    
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+
+
+
+<script src="/js/blog.min.js"></script>
+
+
+    
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-154393799-1', 'auto');
+	ga('set', 'anonymizeIp', true);
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+</div>
+        <a href="#" class="dynamic-to-top" id="dynamic-to-top" data-scroll><span>&nbsp;</span></a>
+    </body>
+</html>
