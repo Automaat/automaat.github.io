@@ -6,6 +6,13 @@
           <description>Agentic AI, LLM systems, agent harnesses, and production engineering.</description>
           
         <item>
+          <title>Back to writing</title>
+          <link>https://mskalski.dev/posts/2026/06/back-to-writing/</link>
+          <guid>https://mskalski.dev/posts/2026/06/back-to-writing/</guid>
+          <pubDate>Sat, 27 Jun 2026 16:19:54 GMT</pubDate>
+          <description>I am back.</description>
+        </item>
+        <item>
           <title>Why is it good practice to set -Xms along -Xmx java flag while using Concurrent Mark Sweep (CMS) collector?</title>
           <link>https://mskalski.dev/posts/2020/05/xms_good_practice/</link>
           <guid>https://mskalski.dev/posts/2020/05/xms_good_practice/</guid>
