@@ -13,6 +13,20 @@
           <description>I am back.</description>
         </item>
         <item>
+          <title>Leveraging Mesh Global Rate Limit Policy in Kong Mesh 2.3</title>
+          <link>https://mskalski.dev/posts/2023/07/mesh-global-rate-limit-policy/</link>
+          <guid>https://mskalski.dev/posts/2023/07/mesh-global-rate-limit-policy/</guid>
+          <pubDate>Mon, 24 Jul 2023 22:00:00 GMT</pubDate>
+          <description>Originally published on the Kong blog. This short introduction to MeshGlobalRateLimit covers coordinated rate limits across service instances, headerbased policies, external services, mesh gateways, and Redisbacked configuration.</description>
+        </item>
+        <item>
+          <title>Stop Wasting Your Engineers’ Time and Start Improving Your System Stability with Kuma</title>
+          <link>https://mskalski.dev/posts/2023/04/benefits-of-kuma/</link>
+          <guid>https://mskalski.dev/posts/2023/04/benefits-of-kuma/</guid>
+          <pubDate>Tue, 11 Apr 2023 22:00:00 GMT</pubDate>
+          <description>Originally published on the Kong blog. I look at the engineering cost of handling servicetoservice networking in every application and how Kuma moves concerns such as mTLS, resiliency, and observability into a shared service mesh layer.</description>
+        </item>
+        <item>
           <title>Why is it good practice to set -Xms along -Xmx java flag while using Concurrent Mark Sweep (CMS) collector?</title>
           <link>https://mskalski.dev/posts/2020/05/xms_good_practice/</link>
           <guid>https://mskalski.dev/posts/2020/05/xms_good_practice/</guid>
