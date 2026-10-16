@@ -6,6 +6,13 @@
           <description>Agentic AI, LLM systems, agent harnesses, and production engineering.</description>
           
         <item>
+          <title>How Kong Built an Agentic Engineering Platform</title>
+          <link>https://mskalski.dev/posts/2026/10/agentic-engineering-platform/</link>
+          <guid>https://mskalski.dev/posts/2026/10/agentic-engineering-platform/</guid>
+          <pubDate>Thu, 15 Oct 2026 22:00:00 GMT</pubDate>
+          <description>Originally published on the Kong blog. I explain how we built KSAI to run AI code reviews in GitHub Actions, with sandboxed agents and model traffic routed through Kong AI Gateway. The post covers review triage, model benchmarks, and rolling the platform out across engineering teams.</description>
+        </item>
+        <item>
           <title>Back to writing</title>
           <link>https://mskalski.dev/posts/2026/06/back-to-writing/</link>
           <guid>https://mskalski.dev/posts/2026/06/back-to-writing/</guid>
